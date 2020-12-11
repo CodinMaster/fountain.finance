@@ -41,6 +41,8 @@ contract FountainV1 {
 
     /// @notice The MoneyPool structure represents a MoneyPool stewarded by an address, and accounts for which addresses have contributed to it.
     struct MoneyPool {
+        // The id of the money pool. Id's are sequential across Fountain.
+        uint256 id;
         // The address who defined this MoneyPool and who has access to its sustainments.
         address who;
         // The token that this MoneyPool can be funded with.
@@ -207,6 +209,7 @@ contract FountainV1 {
         newMoneyPool.want = want;
         newMoneyPool.exists = true;
         newMoneyPool.previousMoneyPoolId = 0;
+        newMoneyPool.id = moneyPoolCount;
 
         latestMoneyPoolIds[msg.sender] = moneyPoolCount;
 
@@ -454,8 +457,8 @@ contract FountainV1 {
         // No pending moneyPool found, clone the latest moneyPool
         moneyPoolId = _getLatestMoneyPoolId(who);
         MoneyPool storage moneyPool = _createMoneyPoolFromId(moneyPoolId);
-        moneyPools[moneyPoolId] = moneyPool;
-        latestMoneyPoolIds[who] = moneyPoolId;
+        moneyPools[moneyPool.id] = moneyPool;
+        latestMoneyPoolIds[who] = moneyPool.id;
         return moneyPoolId;
     }
 
@@ -478,8 +481,8 @@ contract FountainV1 {
         // No pending moneyPool found, clone the latest moneyPool
         moneyPoolId = _getLatestMoneyPoolId(who);
         MoneyPool storage moneyPool = _createMoneyPoolFromId(moneyPoolId);
-        moneyPools[moneyPoolId] = moneyPool;
-        latestMoneyPoolIds[who] = moneyPoolId;
+        moneyPools[moneyPool.id] = moneyPool;
+        latestMoneyPoolIds[who] = moneyPool.id;
 
         return moneyPoolId;
     }
@@ -592,7 +595,8 @@ contract FountainV1 {
         moneyPool.duration = currentMoneyPool.duration;
         moneyPool.want = currentMoneyPool.want;
         moneyPool.exists = true;
-        moneyPool.previousMoneyPoolId = moneyPoolCount;
+        moneyPool.previousMoneyPoolId = moneyPoolId;
+        moneyPool.id = moneyPoolCount;
 
         emit UpdateMoneyPool(
             moneyPoolCount,
